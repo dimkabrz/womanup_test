@@ -34,11 +34,10 @@ const Todo = ({ todo, getTodos }) => {
   };
   const deleteTodo = async () => {
     try {
-      await Promise.all(todo[1].attachedFiles.map(deleteFileOnServer));
+      await Promise.all((todo[1].attachedFiles || []).map(deleteFileOnServer));
       const response = await axios.delete(
         `https://womanup-9b548-default-rtdb.firebaseio.com/todo/${todo[0]}.json`
       );
-
       getTodos();
     } catch {}
   };

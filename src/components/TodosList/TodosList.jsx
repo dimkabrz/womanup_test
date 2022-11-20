@@ -43,7 +43,7 @@ const TodosList = () => {
     );
   };
 
-  const now = dayjs().format("H:m  DD.MM.YYYY");
+  const now = dayjs().format("H:mm  DD.MM.YYYY");
 
   const putTodo = async () => {
     try {

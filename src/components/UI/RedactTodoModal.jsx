@@ -1,13 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./RedactTodoModal.less";
 import axios from "axios";
 import {
   getDownloadURL,
-  getStorage,
   deleteObject,
   ref,
   uploadBytes,
-  uploadBytesResumable,
 } from "firebase/storage";
 import { storage } from "../firebase/firebase";
 
@@ -31,7 +29,15 @@ import { storage } from "../firebase/firebase";
  * @param {string} todo.attachedFiles.url - Download file`s url
  */
 const RedactTodoModal = ({ showModal, setShowModal, todo, getTodos }) => {
-  const [redactTodo, setRedactTodo] = useState({ ...todo[1] });
+  const modalFileRef = useRef();
+  const [redactTodo, setRedactTodo] = useState({
+    attachedFiles: [],
+    ...todo[1],
+  });
+
+  useEffect(() => {
+    setRedactTodo({ attachedFiles: [], ...todo[1] });
+  }, [todo]);
 
   const deleteFileOnServer = async (file) => {
     const fileRef = ref(storage, `files/${file.name}`);
@@ -39,14 +45,15 @@ const RedactTodoModal = ({ showModal, setShowModal, todo, getTodos }) => {
   };
 
   const updateTodo = async () => {
-    const deleteFiles = todo[1].attachedFiles.filter(
-      (file) => !redactTodo.attachedFiles.find((f) => f.name === file.name)
-    );
+    const deleteFiles =
+      todo[1].attachedFiles?.filter(
+        (file) => !redactTodo.attachedFiles.find((f) => f.name === file.name)
+      ) || [];
 
     await Promise.all(deleteFiles.map(deleteFileOnServer));
 
     const updateLoadFiles = await Promise.all(
-      Array.from(redactTodo.newAttachedFiles).map(async (file) => {
+      Array.from(redactTodo.newAttachedFiles || []).map(async (file) => {
         const imageRef = ref(storage, `files/${file.name}`);
         const uploadTask = await uploadBytes(imageRef, file);
         const url = await getDownloadURL(uploadTask.ref);
@@ -63,6 +70,7 @@ const RedactTodoModal = ({ showModal, setShowModal, todo, getTodos }) => {
     );
     getTodos();
     setShowModal(false);
+    modalFileRef.current.value = null;
   };
 
   const deleteFile = (url) => {
@@ -124,6 +132,7 @@ const RedactTodoModal = ({ showModal, setShowModal, todo, getTodos }) => {
           className="modal_input_file"
           type="file"
           multiple="multiple"
+          ref={modalFileRef}
           onChange={(e) => {
             setRedactTodo({ ...redactTodo, newAttachedFiles: e.target.files });
           }}

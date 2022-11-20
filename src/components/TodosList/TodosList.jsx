@@ -29,9 +29,8 @@ const TodosList = () => {
   };
 
   const createTodo = async () => {
-    if (todo.attachedFiles === null) return;
     const uploadFiles = await Promise.all(
-      Array.from(todo.attachedFiles).map(async (file) => {
+      Array.from(todo.attachedFiles || []).map(async (file) => {
         const imageRef = ref(storage, `files/${file.name}`);
         const uploadTask = await uploadBytes(imageRef, file);
         const url = await getDownloadURL(uploadTask.ref);

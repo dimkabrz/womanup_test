@@ -37,7 +37,7 @@ const RedactTodoModal = ({ showModal, setShowModal, todo, getTodos }) => {
     const fileRef = ref(storage, `files/${file.name}`);
     await deleteObject(fileRef);
   };
-  //Берем все старые файлы которые есть, ищем в них те которые находятся в redactTodo, если он там есть то оставляем, если нет значит надо удалить
+
   const updateTodo = async () => {
     const deleteFiles = todo[1].attachedFiles.filter(
       (file) => !redactTodo.attachedFiles.find((f) => f.name === file.name)
@@ -112,7 +112,7 @@ const RedactTodoModal = ({ showModal, setShowModal, todo, getTodos }) => {
           }
         />
         {redactTodo.attachedFiles?.map((file) => (
-          <div key={file.url} className='modal_file_container'>
+          <div key={file.url} className="modal_file_container">
             <a href={file.url} download target="_blank">
               {file.name}{" "}
             </a>

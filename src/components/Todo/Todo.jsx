@@ -3,6 +3,8 @@ import axios from "axios";
 import "./styles.less";
 import RedactTodoModal from "../UI/RedactTodoModal";
 import dayjs from "dayjs";
+import { deleteObject, ref } from "firebase/storage";
+import { storage } from "../firebase/firebase";
 
 /**
  * @callback getTodos - Function that get todos from backend.
@@ -25,11 +27,18 @@ const Todo = ({ todo, getTodos }) => {
 
   const todoDate = dayjs(todo[1].completeDate);
   const outDatedTodo = dayjs().isAfter(todoDate);
+
+  const deleteFileOnServer = async (file) => {
+    const fileRef = ref(storage, `files/${file.name}`);
+    await deleteObject(fileRef);
+  };
   const deleteTodo = async () => {
     try {
+      await Promise.all(todo[1].attachedFiles.map(deleteFileOnServer));
       const response = await axios.delete(
         `https://womanup-9b548-default-rtdb.firebaseio.com/todo/${todo[0]}.json`
       );
+
       getTodos();
     } catch {}
   };
@@ -73,16 +82,16 @@ const Todo = ({ todo, getTodos }) => {
           {file.name}
         </a>
       ))}
-        <div className='todo_card_btns'>
-            <button onClick={deleteTodo}>Удалить задачу</button>
-            <button onClick={redactTodo}>Редактировать</button>
-        </div>
-        <RedactTodoModal
-            showModal={showModal}
-            setShowModal={setShowModal}
-            todo={todo}
-            getTodos={getTodos}
-        />
+      <div className="todo_card_btns">
+        <button onClick={deleteTodo}>Удалить задачу</button>
+        <button onClick={redactTodo}>Редактировать</button>
+      </div>
+      <RedactTodoModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        todo={todo}
+        getTodos={getTodos}
+      />
     </div>
   );
 };

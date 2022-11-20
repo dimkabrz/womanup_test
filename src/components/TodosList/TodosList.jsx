@@ -5,13 +5,7 @@ import "./styles.less";
 import Todo from "../Todo/Todo";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytes,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../firebase/firebase";
 
 const TodosList = () => {
@@ -31,13 +25,11 @@ const TodosList = () => {
         `https://womanup-9b548-default-rtdb.firebaseio.com/todo.json`
       );
       setTodos(response.data ? Object.entries(response.data) : []);
-    } catch {
-    }
+    } catch {}
   };
 
   const createTodo = async () => {
     if (todo.attachedFiles === null) return;
-    //создаем массив ссылок, которые формируются после ожидания загрузки всех файлов
     const uploadFiles = await Promise.all(
       Array.from(todo.attachedFiles).map(async (file) => {
         const imageRef = ref(storage, `files/${file.name}`);
@@ -53,11 +45,6 @@ const TodosList = () => {
   };
 
   const now = dayjs().format("H:m  DD.MM.YYYY");
-  // const nowDate = dayjs()
-
-  // const checkedDate = dayjs().isAfter(dayjs('2011-01-01'))
-  //  console.log(nowDate)
-  //КАК В ОБЪЕКТ ПОЛЕМ ЗАПИСАТЬ НЕ ДАННЫЕ ИЗ ИНПУТА А ЧЕРЕЗ DATE.JS
 
   const putTodo = async () => {
     try {
